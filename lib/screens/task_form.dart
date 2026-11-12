@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/course.dart';
-import '../models/task.dart';
+import '../providers/courses_provider.dart';
+import '../providers/tasks_provider.dart';
 import '../utils/format.dart';
 
-class TaskFormScreen extends StatefulWidget {
-  final List<Course> courses;
-  final int nextId;
-
-  const TaskFormScreen({
-    super.key,
-    required this.courses,
-    required this.nextId,
-  });
+class TaskFormScreen extends ConsumerStatefulWidget {
+  const TaskFormScreen({super.key});
 
   @override
-  State<TaskFormScreen> createState() => _TaskFormScreenState();
+  ConsumerState<TaskFormScreen> createState() => _TaskFormScreenState();
 }
 
-class _TaskFormScreenState extends State<TaskFormScreen> {
+class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _dateController = TextEditingController();
@@ -49,17 +43,18 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   void _save() {
     if (!_formKey.currentState!.validate()) return;
 
-    final task = Task(
-      id: widget.nextId,
-      title: _titleController.text.trim(),
-      dueDate: _dueDate!,
-      courseId: _courseId!,
-    );
-    Navigator.of(context).pop(task);
+    ref.read(tasksProvider.notifier).add(
+          title: _titleController.text.trim(),
+          dueDate: _dueDate!,
+          courseId: _courseId!,
+        );
+    Navigator.of(context).pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
+    final courses = ref.watch(coursesProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('New deadline')),
       body: SingleChildScrollView(
@@ -106,7 +101,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: [
-                  for (final course in widget.courses)
+                  for (final course in courses)
                     DropdownMenuItem(value: course.id, child: Text(course.name)),
                 ],
                 onChanged: (value) => _courseId = value,

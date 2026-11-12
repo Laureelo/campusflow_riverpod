@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/course.dart';
+import '../providers/courses_provider.dart';
 
-class CoursesList extends StatelessWidget {
-  final List<Course> courses;
-
-  const CoursesList({super.key, required this.courses});
+class CoursesList extends ConsumerWidget {
+  const CoursesList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final courses = ref.watch(coursesProvider);
+
     return ListView.builder(
       itemCount: courses.length,
       itemBuilder: (context, index) {

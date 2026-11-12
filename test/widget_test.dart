@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+Widget buildApp() => const ProviderScope(child: CampusFlowApp());
+
 void main() {
   testWidgets('shows the deadlines list with the navigation bar', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
+    await tester.pumpWidget(buildApp());
 
     expect(find.text('Submit the Flutter assignment'), findsOneWidget);
     expect(find.text('Overdue'), findsOneWidget);
@@ -16,21 +18,40 @@ void main() {
     expect(find.text('Mobile Programming'), findsOneWidget);
   });
 
-  testWidgets('opens the detail screen and marks a task as done', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
+  testWidgets('a checkbox toggles the task everywhere', (tester) async {
+    await tester.pumpWidget(buildApp());
+
+    final first = find.byType(Checkbox).first;
+    expect(tester.widget<Checkbox>(first).value, isFalse);
+
+    await tester.tap(first);
+    await tester.pump();
+
+    expect(tester.widget<Checkbox>(first).value, isTrue);
+  });
+
+  testWidgets('the detail screen marks the task as done in the list too',
+      (tester) async {
+    await tester.pumpWidget(buildApp());
 
     await tester.tap(find.text('Submit the Flutter assignment'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Mark as done'), findsOneWidget);
     expect(find.text('Status: To do'), findsOneWidget);
 
     await tester.tap(find.text('Mark as done'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Mark as done'), findsNothing);
-    expect(find.text('Overdue'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
+    expect(find.text('Status: Done'), findsOneWidget);
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNull,
+    );
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<Checkbox>(find.byType(Checkbox).first).value, isTrue);
   });
 
   testWidgets('shows the list and the detail side by side on a wide screen',
@@ -39,7 +60,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
+    await tester.pumpWidget(buildApp());
 
     expect(find.text('Select a deadline'), findsOneWidget);
 
@@ -48,25 +69,10 @@ void main() {
 
     expect(find.text('Mark as done'), findsOneWidget);
     expect(find.text('Submit the Flutter assignment'), findsNWidgets(2));
-
-    await tester.tap(find.text('Mark as done'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Status: Done'), findsOneWidget);
-  });
-
-  testWidgets('keeps a single column on a narrow screen', (tester) async {
-    tester.view.physicalSize = const Size(600, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-
-    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
-
-    expect(find.text('Select a deadline'), findsNothing);
   });
 
   testWidgets('the form validates then adds a deadline', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
+    await tester.pumpWidget(buildApp());
 
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();

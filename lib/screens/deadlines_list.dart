@@ -1,45 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/course.dart';
 import '../models/task.dart';
+import '../providers/courses_provider.dart';
+import '../providers/tasks_provider.dart';
 import '../utils/format.dart';
 
-class DeadlinesList extends StatelessWidget {
-  final List<Task> tasks;
-  final List<Course> courses;
+class DeadlinesList extends ConsumerWidget {
   final ValueChanged<Task> onTaskTap;
   final int? selectedId;
 
-  const DeadlinesList({
-    super.key,
-    required this.tasks,
-    required this.courses,
-    required this.onTaskTap,
-    this.selectedId,
-  });
-
-  String _courseName(int courseId) {
-    return courses
-            .where((course) => course.id == courseId)
-            .map((course) => course.name)
-            .firstOrNull ??
-        'Unknown course';
-  }
+  const DeadlinesList({super.key, required this.onTaskTap, this.selectedId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tasks = ref.watch(tasksProvider);
+    final courses = ref.watch(coursesProvider);
     final now = DateTime.now();
+
+    String courseName(int courseId) {
+      return courses
+              .where((course) => course.id == courseId)
+              .map((course) => course.name)
+              .firstOrNull ??
+          'Unknown course';
+    }
 
     return ListView.builder(
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        final overdue = task.isOverdue(now);
 
         return ListTile(
-          leading: Icon(
-            task.done ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: task.done ? Colors.green : null,
+          leading: Checkbox(
+            value: task.done,
+            onChanged: (_) => ref.read(tasksProvider.notifier).toggle(task.id),
           ),
           title: Text(
             task.title,
@@ -48,11 +43,11 @@ class DeadlinesList extends StatelessWidget {
                 : null,
           ),
           subtitle: Text(
-            '${_courseName(task.courseId)} • ${formatDate(task.dueDate)}',
+            '${courseName(task.courseId)} • ${formatDate(task.dueDate)}',
           ),
           selected: task.id == selectedId,
           onTap: () => onTaskTap(task),
-          trailing: overdue
+          trailing: task.isOverdue(now)
               ? Text(
                   'Overdue',
                   style: TextStyle(

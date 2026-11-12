@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/course.dart';
-import '../models/task.dart';
+import '../providers/courses_provider.dart';
+import '../providers/tasks_provider.dart';
 import '../utils/format.dart';
 
-class TaskDetailView extends StatelessWidget {
-  final Task task;
-  final Course? course;
-  final VoidCallback onMarkDone;
+class TaskDetailView extends ConsumerWidget {
+  final int taskId;
 
-  const TaskDetailView({
-    super.key,
-    required this.task,
-    required this.course,
-    required this.onMarkDone,
-  });
+  const TaskDetailView({super.key, required this.taskId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final task = ref
+        .watch(tasksProvider)
+        .where((task) => task.id == taskId)
+        .firstOrNull;
+
+    if (task == null) {
+      return const Center(child: Text('Task not found'));
+    }
+
+    final course = ref
+        .watch(coursesProvider)
+        .where((course) => course.id == task.courseId)
+        .firstOrNull;
     final overdue = task.isOverdue(DateTime.now());
 
     return Padding(
@@ -48,7 +55,9 @@ class TaskDetailView extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           FilledButton(
-            onPressed: task.done ? null : onMarkDone,
+            onPressed: task.done
+                ? null
+                : () => ref.read(tasksProvider.notifier).markDone(task.id),
             child: const Text('Mark as done'),
           ),
         ],
@@ -58,22 +67,15 @@ class TaskDetailView extends StatelessWidget {
 }
 
 class TaskDetailScreen extends StatelessWidget {
-  final Task task;
-  final Course? course;
-  final VoidCallback onMarkDone;
+  final int taskId;
 
-  const TaskDetailScreen({
-    super.key,
-    required this.task,
-    required this.course,
-    required this.onMarkDone,
-  });
+  const TaskDetailScreen({super.key, required this.taskId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Deadline')),
-      body: TaskDetailView(task: task, course: course, onMarkDone: onMarkDone),
+      body: TaskDetailView(taskId: taskId),
     );
   }
 }

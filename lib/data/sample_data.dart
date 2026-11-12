@@ -1,11 +1,19 @@
 import '../models/course.dart';
 import '../models/task.dart';
+import '../models/user.dart';
 
 const List<Course> sampleCourses = [
   Course(id: 10, name: 'Mobile Programming', teacher: 'Mr. Moctar'),
   Course(id: 11, name: 'Databases', teacher: 'Mrs. Diallo'),
   Course(id: 12, name: 'Networks', teacher: 'Mr. Traore'),
 ];
+
+const User sampleUser = User(
+  id: 1,
+  name: 'Awa',
+  age: 23,
+  email: 'awa@campus.test',
+);
 
 List<Task> buildSampleTasks() {
   final now = DateTime.now();

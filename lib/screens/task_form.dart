@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/courses_provider.dart';
 import '../providers/tasks_provider.dart';
@@ -48,7 +49,7 @@ class _TaskFormScreenState extends ConsumerState<TaskFormScreen> {
           dueDate: _dueDate!,
           courseId: _courseId!,
         );
-    Navigator.of(context).pop(true);
+    context.pop(true);
   }
 
   @override

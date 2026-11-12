@@ -10,7 +10,10 @@ void main() {
     await tester.pumpWidget(buildApp());
 
     expect(find.text('Submit the Flutter assignment'), findsOneWidget);
-    expect(find.text('Overdue'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(ListTile), matching: find.text('Overdue')),
+      findsOneWidget,
+    );
 
     await tester.tap(find.text('Courses'));
     await tester.pump();

@@ -1,10 +1,11 @@
 import 'package:campusflow_riverpod/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('shows the deadlines list with the navigation bar', (tester) async {
-    await tester.pumpWidget(const CampusFlowApp());
+    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
 
     expect(find.text('Submit the Flutter assignment'), findsOneWidget);
     expect(find.text('Overdue'), findsOneWidget);
@@ -16,7 +17,7 @@ void main() {
   });
 
   testWidgets('opens the detail screen and marks a task as done', (tester) async {
-    await tester.pumpWidget(const CampusFlowApp());
+    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
 
     await tester.tap(find.text('Submit the Flutter assignment'));
     await tester.pumpAndSettle();
@@ -38,7 +39,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const CampusFlowApp());
+    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
 
     expect(find.text('Select a deadline'), findsOneWidget);
 
@@ -59,13 +60,13 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const CampusFlowApp());
+    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
 
     expect(find.text('Select a deadline'), findsNothing);
   });
 
   testWidgets('the form validates then adds a deadline', (tester) async {
-    await tester.pumpWidget(const CampusFlowApp());
+    await tester.pumpWidget(const ProviderScope(child: CampusFlowApp()));
 
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();

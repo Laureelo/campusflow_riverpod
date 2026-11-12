@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'screens/home_shell.dart';
 
 void main() {
-  runApp(const CampusFlowApp());
+  runApp(const ProviderScope(child: CampusFlowApp()));
 }
 
 class CampusFlowApp extends StatelessWidget {
